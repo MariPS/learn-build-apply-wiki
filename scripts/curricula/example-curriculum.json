@@ -1,0 +1,20 @@
+{
+  "number": "01",
+  "slug": "foundations",
+  "title": "Foundations",
+  "curriculum": "Placeholder index — replace with your own syllabus, book table of contents, or interview checklist",
+  "topics": [
+    {
+      "name": "First Topic",
+      "description": "One line saying what this topic covers and why it matters."
+    },
+    {
+      "name": "Second Topic",
+      "description": "One line saying what this topic covers and why it matters."
+    },
+    {
+      "name": "Third Topic",
+      "description": "One line saying what this topic covers and why it matters."
+    }
+  ]
+}

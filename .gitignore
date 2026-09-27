@@ -1,0 +1,12 @@
+# Your own wikis: uncomment if you keep them in a separate private repo.
+# Leave them tracked (the default) if this clone *is* your knowledge base.
+# job-wiki/
+# study-wiki/
+
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+venv/
+.idea/
+.vscode/
