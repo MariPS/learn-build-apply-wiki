@@ -9,6 +9,7 @@ published_at: 2025-09-12
 captured_at: 2026-01-20
 locator: "00:00-42:10"
 covers_topics: [message-queues]
+language: en
 generated: { by: human:you, at: 2026-01-20T20:00:00Z }
 ---
 

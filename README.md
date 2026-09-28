@@ -11,13 +11,18 @@ it. This skill keeps both as markdown, and links them.
 - **`job-wiki/`** — one page per application: company, role, dates,
   status, required tools, the original posting kept verbatim.
 - **`study-wiki/`** — one page per concept, grouped into modules imported
-  from a curriculum *you* choose, fed by books, papers, video transcripts,
-  documentation and your own notes.
+  from a curriculum *you* choose, fed **only** by what you give it: books,
+  papers, video transcripts, documentation and your own notes, added to
+  `references/sources/` or through the chat/CLI.
 
-The link runs through a `study_topic` field: every concept a posting
-requires points at the study page where its theory lives. Which means the
-system can answer *which topics do my active applications need that I
-haven't studied yet* — the one question a pile of bookmarks can't.
+The link runs one way, through a `study_topic` field: when a concept a
+posting requires is already covered by a study page, the concept points at
+it. Postings never write to the study wiki — no stubs, no "you should
+study this" topics. What you study stays your plan; the job wiki just tells
+you where your notes already apply.
+
+Postings and sources can be in any language. You pick the language the
+wiki itself is written in; the raw material is kept as it came.
 
 Built on [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
 the LLM writes and maintains the wiki, the human reads and asks questions.
@@ -27,22 +32,22 @@ Compiled pages, not retrieval over raw chunks.
 
 | Operation | Trigger | Result |
 |---|---|---|
-| **Ingest Job** | you paste a posting | raw posting saved, application page written, required concepts created or updated and linked to study topics |
+| **Ingest Job** | you paste a posting | raw posting saved, application page written, required concepts created or updated and linked to study topics that already cover them |
 | **Track** | "sent my CV to X", "they rejected me" | status and dates updated, dated note added |
-| **Ingest Source** | you paste a transcript, chapter, paper, page | source saved raw, triaged to the topics it covers, theory written with per-claim footnotes |
+| **Ingest Source** | you paste a transcript, chapter, paper, page, or your own notes | source saved raw, triaged to the topics it covers, theory written with per-claim footnotes; job concepts now covered get linked |
 | **Query** | "what do I know about X?" | answer compiled from the wiki, with citations |
-| **Prep** | "interview tomorrow with X" | briefing from the linked topics, plus the gaps to close first |
-| **Lint** | "check the wikis" | index drift and broken links fixed; duplicates, orphans and uncovered priority topics reported |
-| **Extend** | "add a module on system design" | new module scaffolded, orphaned concepts reconnected |
+| **Prep** | "interview tomorrow with X" | briefing from the linked topics, plus the gaps — in chat, never written into the study wiki |
+| **Lint** | "check the wikis" | index drift, broken and missed job→study links fixed, job content leaked into study pages removed; duplicates and orphans reported |
+| **Extend** | "add a module on system design" (only when you ask) | new module scaffolded |
 
 You never say which file to write. That's the point.
 
 ## Install
 
 ```bash
-git clone https://github.com/<you>/career-wiki.git
+git clone https://github.com/MariPS/career-wiki.git
 cd career-wiki
-python3 scripts/init_wiki.py
+python3 scripts/init_wiki.py --lang it   # the language the wiki is written in; default en
 ```
 
 Then make `SKILL.md` available to your agent:
@@ -66,7 +71,7 @@ index that's useful for *your* interviews will do:
 - a course or bootcamp syllabus
 - an interview-prep checklist for your target roles
 - the documentation outline of a framework you need to learn
-- your own list of what keeps coming up in postings
+- your own list of what you've decided to study
 
 Describe it as JSON and materialise it:
 
@@ -95,7 +100,7 @@ first import with `"origin": "extension"`.
 # Key points          facts to memorise, extracted from the theory
 # Interview questions each with an answer outline
 # Sources read        what each source contributed, so you know where you stopped
-# Links               parent module, related topics, concepts pointing here
+# Links               parent module, related topics (never the job wiki)
 ```
 
 Two rules make the difference between a notebook and an index:
@@ -129,13 +134,38 @@ study:  <the transcript, chapter, paper>
 The case worth knowing: **a posting that mentions technologies stays a
 posting.** A list of requirements teaches nothing, and letting it into a
 topic page fills your study notes with recruiting language dressed up as
-theory. Postings feed `concepts/`, which *point at* topics. The cross-link
-does the work — never duplicated content.
+theory. Postings feed `concepts/`, which *point at* topics you've already
+covered. The cross-link does the work — never duplicated content.
+
+## Languages
+
+`career-wiki.json` holds one setting, the wiki language:
+
+```json
+{ "language": "it" }
+```
+
+- Postings and sources are saved **as they came**, in their own language,
+  with a `language` field.
+- Everything the agent writes — applications, concepts, topics, logs,
+  answers — is in the wiki language. Terms of art from a source in another
+  language keep the original in parentheses on first use, so interview
+  vocabulary isn't lost.
+- Filenames are ASCII and language-neutral (`message-queues.md`), and
+  concepts carry `aliases`, so a German posting and an English one land on
+  the same page.
+- Section headings (`# Theory in depth`, ...) and front matter keys stay in
+  English: they're the structure the agent navigates by.
+
+Change the language with `python3 scripts/init_wiki.py --lang <tag>`.
+Existing pages aren't translated automatically; Lint lists them and the
+agent translates on request.
 
 ## Layout
 
 ```
 SKILL.md                  the agent's instructions — architecture, schemas, operations
+career-wiki.json          wiki language (created by init_wiki.py)
 scripts/
   init_wiki.py            create the two empty bundles
   add_module.py           materialise a curriculum module into pages

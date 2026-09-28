@@ -13,9 +13,12 @@ The JSON definition looks like this:
   "title": "Foundations",
   "curriculum": "Whatever syllabus, book or checklist this index came from",
   "resource": "https://example.com/syllabus",
+  "language": "en",
   "topics": [
     {"name": "First Topic",
      "description": "One line on what this topic covers."},
+    {"name": "Code di messaggi", "slug": "message-queues",
+     "description": "An explicit slug overrides the one derived from the name."},
     {"name": "Second Topic",
      "description": "One line on what this topic covers."}
   ]
@@ -25,6 +28,12 @@ The JSON definition looks like this:
 `resource` are optional but recommended: they record where an index came
 from. Set "origin": "extension" for modules added after the first import.
 
+`language` is the language names and descriptions are written in; it
+defaults to the wiki language in career-wiki.json (next to study-wiki/),
+or "en". Slugs are always ASCII: accents are stripped, and a topic may set
+its own "slug" to stay language-neutral (e.g. "message-queues" for a topic
+named "Code di messaggi").
+
 The script is idempotent: existing topic pages are never overwritten, so
 you can add entries to the JSON and rerun it safely.
 """
@@ -33,21 +42,44 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from datetime import datetime, timezone
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "study-wiki")
 ROOT = os.path.normpath(ROOT)
 ACTOR = os.environ.get("WIKI_ACTOR", "human:you")
+CONFIG = os.path.normpath(os.path.join(ROOT, "..", "career-wiki.json"))
+
+
+def read(path):
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def write(path, text):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def wiki_language():
+    if os.path.exists(CONFIG):
+        return json.loads(read(CONFIG)).get("language", "en")
+    return "en"
 
 
 def slugify(s):
-    s = s.lower()
+    s = unicodedata.normalize("NFKD", s)
+    s = s.encode("ascii", "ignore").decode("ascii").lower()
     s = re.sub(r"\(.*?\)", "", s)
     s = re.sub(r"[^a-z0-9]+", "-", s)
     return s.strip("-")
 
 
-def topic_page(name, desc, module_label, module_link):
+def topic_slug(t):
+    return t.get("slug") or slugify(t["name"])
+
+
+def topic_page(name, desc, module_label, module_link, lang):
     return f"""---
 type: Study Topic
 title: "{name}"
@@ -55,6 +87,7 @@ description: {desc}
 tags: [{slugify(module_label.split(' - ', 1)[-1])}]
 module: "{module_label}"
 coverage: empty        # empty | stub | drafted | solid
+language: {lang}
 generated: {{ by: {ACTOR}, at: {NOW} }}
 ---
 
@@ -99,10 +132,10 @@ generated: {{ by: {ACTOR}, at: {NOW} }}
 """
 
 
-def module_page(m, topics):
+def module_page(m, topics, lang):
     label = f"{m['number']} - {m['title']}"
     rows = "\n".join(
-        f"* [{t['name']}](/topics/{slugify(t['name'])}.md) - {t['description']}"
+        f"* [{t['name']}](/topics/{topic_slug(t)}.md) - {t['description']}"
         for t in topics
     )
     src_block = ""
@@ -126,6 +159,7 @@ description: Module {m['number']} of the study curriculum.
 {resource_line}tags: [curriculum, {slugify(m['title'])}]
 module_number: {int(m['number'])}
 origin: {m.get('origin', 'curriculum')}
+language: {lang}
 generated: {{ by: {ACTOR}, at: {NOW} }}
 {src_block}---
 
@@ -139,23 +173,23 @@ def append_module_index(m, n_topics):
     path = os.path.join(ROOT, "modules", "index.md")
     plural = "topic" if n_topics == 1 else "topics"
     line = f"* [{m['number']} - {m['title']}]({m['number']}-{m['slug']}.md) - {n_topics} {plural}"
-    content = open(path).read().rstrip("\n")
+    content = read(path).rstrip("\n")
     if line in content:
         return
     sep = "\n\n" if content.rstrip().endswith("# Modules") else "\n"
-    open(path, "w").write(content.rstrip("\n") + sep + line + "\n")
+    write(path, content.rstrip("\n") + sep + line + "\n")
 
 
 def append_topic_index(m, topics):
     path = os.path.join(ROOT, "topics", "index.md")
-    content = open(path).read().rstrip("\n")
+    content = read(path).rstrip("\n")
     header = f"# {m['number']} - {m['title']}"
     if header in content:
         return
     rows = "\n".join(
-        f"* [{t['name']}]({slugify(t['name'])}.md) - {t['description']}" for t in topics
+        f"* [{t['name']}]({topic_slug(t)}.md) - {t['description']}" for t in topics
     )
-    open(path, "w").write(f"{content}\n\n{header}\n\n{rows}\n")
+    write(path, f"{content}\n\n{header}\n\n{rows}\n")
 
 
 def main():
@@ -165,39 +199,40 @@ def main():
         print(__doc__)
         sys.exit(1)
 
-    m = json.load(open(args[0]))
+    m = json.loads(read(args[0]))
     for key in ("number", "slug", "title", "topics"):
         if key not in m:
             sys.exit(f"Missing required field: {key}")
 
+    lang = m.get("language") or wiki_language()
     label = f"{m['number']} - {m['title']}"
     link = f"{m['number']}-{m['slug']}"
     created, skipped = [], []
 
     for t in m["topics"]:
-        path = os.path.join(ROOT, "topics", slugify(t["name"]) + ".md")
+        path = os.path.join(ROOT, "topics", topic_slug(t) + ".md")
         if os.path.exists(path):
             skipped.append(os.path.basename(path))
             continue
         created.append(os.path.basename(path))
         if not dry:
-            open(path, "w").write(topic_page(t["name"], t["description"], label, link))
+            write(path, topic_page(t["name"], t["description"], label, link, lang))
 
     mod_path = os.path.join(ROOT, "modules", link + ".md")
     if not dry:
-        open(mod_path, "w").write(module_page(m, m["topics"]))
+        write(mod_path, module_page(m, m["topics"], lang))
         append_module_index(m, len(m["topics"]))
         append_topic_index(m, m["topics"])
         log_path = os.path.join(ROOT, "log.md")
         today = str(datetime.now(timezone.utc).date())
-        existing = open(log_path).read() if os.path.exists(log_path) else ""
+        existing = read(log_path) if os.path.exists(log_path) else ""
         header = "" if f"## {today}" in existing else f"\n## {today}\n"
         entry = (
             f"* **Extend**: added module {label} with {len(m['topics'])} "
             f"topic{'' if len(m['topics']) == 1 else 's'} "
             f"({len(created)} new, {len(skipped)} already present).\n"
         )
-        with open(log_path, "a") as f:
+        with open(log_path, "a", encoding="utf-8") as f:
             f.write(header + entry)
 
     print(f"{'[dry-run] ' if dry else ''}Module {label}")

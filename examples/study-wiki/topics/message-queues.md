@@ -5,6 +5,7 @@ description: Asynchronous message transport, delivery guarantees, and consumer d
 tags: [foundations]
 module: "01 - Foundations"
 coverage: drafted
+language: en
 generated: { by: human:you, at: 2026-01-20T20:15:00Z }
 sources:
   - id: talk-semantics
@@ -89,6 +90,5 @@ for a log-shaped broker, not a queue-shaped one.
 # Links
 
 - Module: [01 - Foundations](/modules/01-foundations.md)
-- Required by: [Message Queues](../../job-wiki/concepts/message-queues.md) in the job wiki
 
 [^talk-semantics]: Talk: delivery semantics in practice

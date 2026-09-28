@@ -9,6 +9,7 @@ published_at: <YYYY-MM-DD or year>
 captured_at: <YYYY-MM-DD>
 locator: <chapter, pages, timestamps — where applicable>
 covers_topics: []           # topic slugs this source feeds
+language: <tag>             # the source's own language, e.g. en, it, de
 generated: { by: human:you, at: <timestamp> }
 ---
 

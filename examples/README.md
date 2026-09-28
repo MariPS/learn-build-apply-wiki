@@ -18,4 +18,11 @@ Read it in this order to see the cross-link at work:
    source the theory was compiled from.
 
 Note what the theory page does *not* contain: any mention of Example Corp,
-salary, or seniority. Recruiting metadata stays in the job wiki.
+salary, seniority, or even a link back to the job wiki. The link runs one
+way, from the concept to the topic — and the logs show it was only set on
+2026-01-20, once the talk had been ingested and the topic actually covered
+the subject. On 2026-01-15, when the posting arrived, the concept stayed at
+`study_topic: null` and the study wiki was left alone.
+
+`career-wiki.json` sets the wiki language (`en` here). Postings and
+sources carry their own `language`, and may differ from it.

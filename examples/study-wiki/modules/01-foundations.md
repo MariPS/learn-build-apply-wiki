@@ -5,6 +5,7 @@ description: Module 01 of the study curriculum.
 tags: [curriculum, foundations]
 module_number: 1
 origin: curriculum
+language: en
 generated: { by: human:you, at: 2026-01-10T10:00:00Z }
 ---
 

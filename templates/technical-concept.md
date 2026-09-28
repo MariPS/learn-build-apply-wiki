@@ -2,8 +2,10 @@
 type: Technical Concept
 title: <Concept name>
 description: <one line>
+aliases: []                                      # names seen in postings/sources, any language
 tags: []
-study_topic: ../../study-wiki/topics/<slug>.md   # or null, with a note saying why
+study_topic: ../../study-wiki/topics/<slug>.md   # only if that topic already covers this; else null
+language: <wiki language>
 generated: { by: human:you, at: <timestamp> }
 ---
 
@@ -15,7 +17,9 @@ generated: { by: human:you, at: <timestamp> }
 
 # Further study
 
-<Link to the matching study topic, where the theory and sources live.>
+<Link to the study topic that already covers this, if any. Omit the
+section while study_topic is null: the study wiki is not extended from
+postings.>
 
 # Linked applications
 

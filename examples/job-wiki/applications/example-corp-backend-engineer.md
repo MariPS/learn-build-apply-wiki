@@ -10,6 +10,7 @@ posted_at: 2026-01-15
 cv_sent_at: 2026-01-18
 application_status: interview
 status: stable
+language: en
 generated: { by: human:you, at: 2026-01-18T18:30:00Z }
 sources:
   - id: posting

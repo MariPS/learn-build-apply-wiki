@@ -17,5 +17,14 @@ want them listed; add `"origin": "extension"` to modules you add after the
 first import, so what you imported stays distinguishable from what you
 grew yourself.
 
+Write topic names and descriptions in your wiki language (set in
+`career-wiki.json`; override per module with `"language"`). Filenames are
+always ASCII: accents are stripped, and you can pin a language-neutral
+filename with `"slug"` — e.g. `{"name": "Code di messaggi", "slug":
+"message-queues", ...}` — so postings in any language link to it.
+
+Postings never add topics here: the study wiki grows only from the
+curricula you import and the sources you ingest.
+
 `example-curriculum.json` is a placeholder with three empty topics. Delete
 it once you have your own.

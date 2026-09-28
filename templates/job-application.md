@@ -10,6 +10,7 @@ posted_at: <YYYY-MM-DD>
 cv_sent_at: <YYYY-MM-DD>
 application_status: candidate   # candidate | applied | interview | rejected | offer | withdrawn
 status: draft                   # draft | stable | deprecated (document lifecycle, not the application's)
+language: <wiki language>       # from career-wiki.json
 generated: { by: human:you, at: <timestamp> }
 sources:
   - id: posting

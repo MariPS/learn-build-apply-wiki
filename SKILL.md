@@ -1,6 +1,6 @@
 ---
 name: career-wiki
-description: Maintains two linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes on the concepts those jobs require. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki ("which postings need Kubernetes?", "what do I know about vector databases?", "where am I weakest?"), asks to prepare for an interview, asks to extend the study wiki with a new area, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Prep, Lint and Extend operations defined below.
+description: Maintains two linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes solely from material the user supplies, with job concepts linking into it only where it already covers them. Postings and sources may be in any language; compiled pages are written in the wiki language the user configured. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki ("which postings need Kubernetes?", "what do I know about vector databases?", "where am I weakest?"), asks to prepare for an interview, asks to extend the study wiki with a new area, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Prep, Lint and Extend operations defined below.
 ---
 
 # Career Wiki
@@ -25,11 +25,19 @@ v0.2 bundles, cross-linked.
 - **`applications/`** — one page per application. `type: Job Application`.
 - **`concepts/`** — the tools and theory postings ask for, shared across
   applications. `type: Technical Concept`. Each page carries a
-  `study_topic` field pointing at the matching page in the study wiki
-  (`../../study-wiki/topics/<slug>.md`), or `null` when the concept falls
-  outside the study curriculum.
+  `study_topic` field pointing at the study-wiki page that already covers
+  it (`../../study-wiki/topics/<slug>.md`), or `null` when no topic covers
+  it (yet).
 
 ### `study-wiki/` — what you actually know
+
+The study wiki is **fed only by the user**: sources they add to
+`references/sources/` (pasted, attached, or typed as their own notes) and
+explicit instructions in the chat/CLI (including `scripts/add_module.py`).
+Postings, applications and interview notes **never** write to it — not a
+topic, not a stub, not an interview question, not a backlink. The link
+runs one way: `job-wiki/concepts/` → `study-wiki/topics/`, and only when a
+topic actually covers the concept.
 
 - **`references/sources/`** — raw, immutable layer: one page per external
   source (video transcript, book chapter, paper, web page, course notes).
@@ -51,7 +59,43 @@ concept is durable. A study topic has a fixed shape imposed by the
 curriculum. Keeping them apart stops study pages from filling up with
 recruiting metadata.
 
+## Languages
+
+Material arrives in any language; the wiki is written in one.
+
+- **Wiki language** — set in `career-wiki.json` at the root, next to the
+  two bundles: `{ "language": "it" }` (a BCP 47 tag; `init_wiki.py --lang`
+  writes it, default `en`). Read it before writing any compiled page. If
+  the file is missing, ask once and create it.
+- **Raw layer keeps the original.** `references/postings/` and
+  `references/sources/` hold the text in the language it was written in,
+  never translated, with a `language` field recording it.
+- **Compiled pages are in the wiki language**: applications, concepts,
+  modules, topics, `log.md` entries and your summaries to the user. When
+  a source in another language introduces a term of art, keep the original
+  term in parentheses on first use — "code di messaggi (*message
+  queues*)" — so interview vocabulary survives the translation. Short
+  quotations may stay in the original, followed by a translation.
+- **Section headings and front matter keys stay as defined in this file**
+  (`# Theory in depth`, `coverage`, ...): they are structural anchors the
+  operations rely on, not prose. Values such as `title` and `description`
+  are in the wiki language.
+- **Slugs are ASCII and language-neutral**: lowercase, hyphenated, accents
+  stripped. For concepts use the most widely used technical name —
+  usually the English one (`message-queues`, not `code-di-messaggi`) — so
+  postings in different languages converge on the same page. Record the
+  other names seen in postings or sources in an `aliases` list.
+- **Match on meaning across languages.** "Kubernetes-Erfahrung", "esperienza
+  con Kubernetes" and "Kubernetes experience" are one concept; a French
+  source on *files de messages* feeds the `message-queues` topic. Check
+  `title`, `aliases` and `description` before concluding nothing matches.
+- If the wiki language changes, don't translate existing pages on your
+  own: Lint reports the pages still in the old language and you translate
+  on request.
+
 ## Naming conventions
+
+All slugs are ASCII (see Languages).
 
 - `job-wiki/applications/<company-slug>-<role-slug>.md`
 - `job-wiki/concepts/<concept-slug>.md`
@@ -76,6 +120,7 @@ posted_at: <posting date, ISO 8601>
 cv_sent_at: <date CV was sent, ISO 8601>
 application_status: candidate | applied | interview | rejected | offer | withdrawn
 status: draft | stable | deprecated   # deprecated once the position closes
+language: <wiki language>
 generated: { by: <actor>, at: <timestamp> }
 sources:
   - id: posting
@@ -87,12 +132,18 @@ sources:
 
 ```yaml
 type: Technical Concept
-title: <Concept name>
+title: <Concept name, in the wiki language>
 description: <one line>
+aliases: [<names seen in postings/sources, any language>]
 tags: [...]
-study_topic: ../../study-wiki/topics/<slug>.md   # or null if out of scope
+study_topic: ../../study-wiki/topics/<slug>.md   # or null: no topic covers it (yet)
+language: <wiki language>
 generated: { by: <actor>, at: <timestamp> }
 ```
+
+`study_topic` is set only when the target topic is at `coverage` `stub`
+or above **and** its theory actually treats the concept. An empty stub
+with the right name is not coverage.
 
 **Study Topic** (in `study-wiki/topics/`):
 
@@ -103,6 +154,7 @@ description: <one line>
 tags: [...]
 module: "<NN> - <module name>"
 coverage: empty | stub | drafted | solid
+language: <wiki language>
 generated: { by: <actor>, at: <timestamp> }
 sources:
   - id: <short-id>
@@ -120,9 +172,9 @@ Study Topic body, in this order:
 | `# Summary` | 5-10 lines: what it is, what it's for, where it sits. Enough for a quick refresher. |
 | `# Theory in depth` | **The real body of the page.** Formal definitions, step-by-step mechanisms, formulas, pseudocode, trade-offs, failure modes, comparisons between alternatives. Split into `##` subsections **by theme, never by source**. |
 | `# Key points` | Facts to memorise, extracted from the theory above. |
-| `# Interview questions` | Questions collected, each with the outline of an answer. |
+| `# Interview questions` | Questions taken from the user's sources or dictated by the user, each with the outline of an answer. Never copied in from postings or application notes. |
 | `# Sources read` | One line per source already absorbed, and what it contributed. |
-| `# Links` | Parent module, related topics, concepts in the job wiki pointing here. |
+| `# Links` | Parent module, related topics. No links into the job wiki. |
 
 Claims taken from a specific source are attributed with a markdown
 footnote whose label is the source's `id` in `sources`, as OKF prescribes:
@@ -137,6 +189,7 @@ type: Reference
 title: <descriptive title>
 description: Full text of the posting, verbatim, not summarised.
 resource: <URL, if any>
+language: <language of the posting as published>
 generated: { by: <actor>, at: <timestamp> }
 ```
 
@@ -153,6 +206,7 @@ published_at: <date or year>
 captured_at: <date you collected it>
 locator: <chapter/pages/timestamps, where applicable>
 covers_topics: [<topic-slug>, ...]
+language: <language of the source>
 generated: { by: <actor>, at: <timestamp> }
 ```
 
@@ -195,8 +249,10 @@ If the message opens with one of these, stop reasoning and route:
 A posting **mentions** technologies without explaining them. It stays a
 posting. Never treat it as a study source: a list of requirements teaches
 nothing, and it would pollute topic pages with recruiting language dressed
-up as theory. The posting feeds `concepts/`, which **point at** topics —
-the cross-link does the work, not duplicated content.
+up as theory. The posting feeds `concepts/`, which **point at** topics
+the user has already covered — the cross-link does the work, not
+duplicated content. A posting never creates, extends or annotates
+anything in the study wiki.
 
 Conversely, a study source that talks about a company (an engineering talk
 from a well-known firm) stays a source: nobody is hiring.
@@ -221,31 +277,32 @@ Trigger: the user pastes a URL, posting text, or attaches a file that
 routing identified as a posting.
 
 1. Create `job-wiki/references/postings/<slug>-<date>.md` holding the
-   verbatim text (`type: Reference`).
+   verbatim text in its original language (`type: Reference`, with
+   `language`).
 2. Check `applications/index.md`: is this already tracked (same company +
    role)? If so, update the existing page instead of creating a new one.
-3. Create or update `applications/<slug>.md`: extract company, role,
-   posting date, job description, responsibilities, required tools. Link
-   `sources` to the reference you just created.
+3. Create or update `applications/<slug>.md` in the wiki language:
+   extract company, role, posting date, job description, responsibilities,
+   required tools. Link `sources` to the reference you just created.
 4. For each required tool or theoretical concept: first search
    `concepts/index.md` for an existing page covering it (match on meaning,
-   not just wording). If one exists, update it with the new context and a
-   link to the new application; otherwise create a minimal new page. Never
-   duplicate a concept.
-5. **Link to study**: for each concept touched, if it has no `study_topic`
-   yet, look for the matching page in `study-wiki/topics/index.md`.
-   - Found → set `study_topic` in front matter and add a `# Further study`
-     section with the relative link.
-   - Not found, but clearly inside the curriculum's scope → propose
-     creating a new Study Topic and say which module you'd file it under.
-     Don't create it yourself: the skeleton comes from the curriculum.
-   - Out of scope → set `study_topic: null` with a short comment.
+   across languages — check `aliases`). If one exists, update it with the
+   new context, add any new wording to `aliases`, and link the new
+   application; otherwise create a minimal new page. Never duplicate a
+   concept.
+5. **Link to study, read-only**: for each concept touched with no
+   `study_topic` yet, look in `study-wiki/topics/index.md` for a topic
+   that already covers it (see the rule under the Technical Concept
+   schema).
+   - Covered → set `study_topic` and add a `# Further study` section with
+     the relative link.
+   - Not covered → `study_topic: null`. Stop there: don't propose topics,
+     modules or sources, and don't touch any file in `study-wiki/`.
 6. Append a line to the job wiki's `log.md`.
 7. Refresh the affected rows in `applications/index.md` and
    `concepts/index.md`.
-8. Summarise in a few lines what you created or updated, and flag any
-   linked study topics still at `coverage: empty` — that's the preparation
-   debt this posting just created.
+8. Summarise in a few lines what you created or updated, and which
+   concepts got linked to an existing study topic.
 
 ### 2. Track — application status update
 
@@ -264,18 +321,26 @@ to X", "interview with Y on Thursday", "Z rejected me", "took the offer").
 ### 3. Ingest Source — new study material
 
 Trigger: the user pastes a video link or transcript, a book chapter or
-excerpt, a paper, a web page, course notes — any study material, usually
-without saying which topic it belongs to.
+excerpt, a paper, a web page, course notes, or dictates their own notes
+in the chat/CLI — any study material, usually without saying which topic
+it belongs to. Also: the user drops a file into `references/sources/`
+by hand and asks you to process it (skip step 1, fill in the missing
+front matter).
+
+This is the only operation, together with Extend, that writes study
+content.
 
 1. Create `study-wiki/references/sources/<slug>.md` holding the raw
-   content (`type: Reference`, with `source_kind`, `author`,
-   `published_at`, `locator`). For long copyrighted sources (books, paywalled
-   papers) do not paste the full text: keep short excerpts, definitions and
-   the user's own notes, each with a page reference or timestamp.
+   content in its original language (`type: Reference`, with
+   `source_kind`, `author`, `published_at`, `locator`, `language`). For
+   long copyrighted sources (books, paywalled papers) do not paste the
+   full text: keep short excerpts, definitions and the user's own notes,
+   each with a page reference or timestamp.
 2. **Triage**: read the source and decide which topics it covers, checking
    `topics/index.md`. One source often covers several. Record the list in
    `covers_topics` on the reference.
-3. For each covered topic, update its page — **most of the work belongs in
+3. For each covered topic, update its page in the wiki language,
+   whatever the source's language — **most of the work belongs in
    `# Theory in depth`**, not in the summary:
    - add the source to `sources` with a stable `id`;
    - pour the substantive content into the theory: mechanisms, formal
@@ -307,8 +372,11 @@ without saying which topic it belongs to.
    Never promote a page to `drafted` on the strength of a summary alone:
    the theory is exactly what separates an index from a notebook.
 
-4. If a concept in `job-wiki/concepts/` points at this topic, nothing
-   further is needed — the link already works both ways.
+4. **Link from jobs**: for each topic that now reaches `stub` or above,
+   scan `job-wiki/concepts/` for pages at `study_topic: null` whose
+   concept this topic's theory now covers. Set their `study_topic`, add
+   `# Further study`, and log it in the job wiki's `log.md`. This writes
+   only to the job wiki; the topic page itself stays unaware of postings.
 5. If the source matches no existing topic, say so and propose where it
    belongs. Don't invent new topics on your own initiative.
 6. Append a line to the study wiki's `log.md`.
@@ -342,10 +410,16 @@ I weakest?".
    most likely to come up, the passages of `# Theory in depth` that are
    easy to trip over — the ones with formulas, trade-offs or failure modes.
    Add the questions already collected.
-4. Highlight the gaps: topics at `coverage: empty` or `stub`, and
-   `drafted` topics whose theory covers only part of the subject. For each,
-   suggest what kind of source to look for.
-5. This is conversational output: don't write files unless asked.
+4. Highlight the gaps: required concepts at `study_topic: null` (the study
+   wiki doesn't cover them), linked topics still at `stub`, and `drafted`
+   topics whose theory covers only part of the subject. For each, suggest
+   what kind of source to look for.
+5. This is conversational output: don't write files unless asked — in
+   particular, never add the gaps to the study wiki. What gets studied is
+   the user's call, made by adding sources.
+6. Answer in the wiki language, quoting technical terms in the language
+   the interview will be held in when that differs (usually the posting's
+   `language`).
 
 ### 6. Lint — wiki health check
 
@@ -358,19 +432,29 @@ Fix automatically:
 - Broken internal links pointing at a file you know was renamed or moved.
 - Front matter missing `type` (add it when the content makes it obvious).
 - `coverage` out of step with the page's actual contents.
-- `study_topic` pointing at a nonexistent file.
+- `study_topic` pointing at a nonexistent file, or at a topic at
+  `coverage: empty` → reset to `null`.
+- **Missed links**: `concepts/*.md` at `study_topic: null` (or with no
+  `study_topic` at all) whose concept is now covered by a topic → set the
+  link and add `# Further study`. Match on meaning, across languages.
+- **Leaks into the study wiki**: study pages that link into the job wiki,
+  name companies or postings, or carry interview questions taken from
+  postings or application notes → remove them (the concept page in the
+  job wiki is where that belongs; move it there if it isn't already).
+- Missing `language` on a compiled page: add it (the wiki language, or
+  whatever the page is actually written in).
 
 Report without fixing (ask first):
-- Duplicate or near-duplicate concepts in `concepts/` that should merge.
-- `concepts/*.md` with neither a `study_topic` nor an explicit `null`: the
-  cross-link was never assessed.
+- Duplicate or near-duplicate concepts in `concepts/` that should merge,
+  including the same concept filed under names in two languages.
 - Orphan `applications/*.md` (no links to or from `concepts/`) — usually a
   sign the tool extraction was incomplete.
 - Postings with an old `posted_at` still at `application_status: candidate`
   — probably a forgotten application.
-- **Uncovered priority topics**: topics at `coverage: empty` that are
-  linked from concepts required by *active* applications. Rank them by how
-  many applications cite them: that's the study list that actually pays.
+- Compiled pages whose `language` differs from the wiki language:
+  translate on request.
+- References missing `language` (they're write-once: add it only with the
+  user's go-ahead).
 - Topics with many sources but still at `stub`: material collected and
   never synthesised.
 - Topics with a `# Summary` but an empty `# Theory in depth`: an index
@@ -381,9 +465,11 @@ Report without fixing (ask first):
 
 ### 7. Extend — a new study module
 
-Trigger: the user wants to cover ground outside the imported curriculum
-("add system design", "I need distributed systems"), or you repeatedly hit
-a concept in postings that no existing topic can house.
+Trigger: **only** an explicit request from the user to cover ground
+outside the imported curriculum ("add system design", "I need distributed
+systems"), or the user running `scripts/add_module.py` themselves. Never
+propose or start an extension because postings keep asking for something:
+the study wiki follows the user's plan, not the job market.
 
 Non-negotiable rules:
 
@@ -413,27 +499,31 @@ Procedure:
    creates the module page and topic stubs, updates both `index.md` files,
    and writes to `log.md`. It is idempotent: add topics to the JSON later
    and rerun, and only the new ones appear. `--dry-run` previews without
-   writing.
-4. **Reconnect orphaned concepts**: scan `job-wiki/concepts/*.md` for pages
-   at `study_topic: null` that now have a home, and update their
-   cross-links. This is the point of extending — a module that closes no
-   `null` probably wasn't needed.
-5. Report how many concepts were reconnected and which remain uncovered.
+   writing. Topic names and descriptions go in the wiki language; give a
+   topic an explicit `"slug"` when its name alone wouldn't produce the
+   language-neutral slug you want.
+4. New topics start at `coverage: empty`, so no job concept links to them
+   yet: links appear once Ingest Source fills them in.
 
 ## When not to extend
 
-A new module earns its place when the subject recurs across postings and
-has a structure of its own. If a concept appears in a single application
-and won't come back, the page in `job-wiki/concepts/` is enough on its own:
-leaving it at `study_topic: null` is a legitimate answer, not a gap. The
-study wiki stays useful only while it stays smaller than what you'd
-actually study.
+A new module earns its place when the user wants to study a subject with
+a structure of its own. A concept that shows up in postings but not in
+the study wiki is not a gap to close: `study_topic: null` is a legitimate,
+permanent answer. The study wiki stays useful only while it stays smaller
+than what you'd actually study.
 
 ## General rules
 
 - Don't ask for confirmation field by field: apply the schemas above and
   show a short summary at the end. Ask only on genuine ambiguity (already
   tracked? which application?).
+- **Study wiki boundary**: only Ingest Source, Extend and explicit user
+  requests add content to `study-wiki/`; Lint may only repair it (indexes,
+  links, `coverage`, removing job leaks). Ingest Job, Track, Prep and
+  Query never write there. Cross-links are written on the job side only.
+- Compiled pages in the wiki language; raw references in their original
+  language (see Languages).
 - `references/` is write-once. Never rewrite a reference after creating it.
 - `log.md` is append-only.
 - Prefer enriching an existing page (`concepts/` or `topics/`) over
