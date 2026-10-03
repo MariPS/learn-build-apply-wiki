@@ -1,12 +1,3 @@
-# Personal wikis: they hold CVs, applications and study notes.
-# Only the tool (skill, scripts, templates, examples) goes on GitHub.
-/job-wiki/
-/study-wiki/
-/project-wiki/
-/wiki-config.json
-/.obsidian/
-/Pasted image *.png
-
 __pycache__/
 *.pyc
 .DS_Store
@@ -14,7 +5,3 @@ __pycache__/
 venv/
 .idea/
 .vscode/
-
-# Your own module definitions: only the placeholder ships with the tool.
-/scripts/curricula/*.json
-!/scripts/curricula/example-curriculum.json
