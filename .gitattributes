@@ -1,0 +1,9 @@
+# Always LF in the repository, whatever the OS: scripts and wikis must not
+# pick up CRLF (it breaks bash scripts and makes diffs noisy).
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.pdf binary
+*.docx binary
+*.png binary
+*.jpg binary
