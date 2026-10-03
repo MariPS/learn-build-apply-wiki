@@ -249,8 +249,7 @@ remove or reorder a subsection, renumber the ones that follow.
 Claims taken from a specific source are attributed with a markdown
 footnote whose label is the source's `id` in `sources`, as OKF prescribes:
 `...it works like X.[^source-id]`. Theory is the one section allowed to
-grow without bound; past roughly 400 lines, propose splitting a subtheme
-into its own topic (needs the user's go-ahead — see Extend).
+grow without bound.
 
 **Reference** (posting, in `job-wiki/references/postings/`):
 
