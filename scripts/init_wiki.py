@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the two empty OKF bundles this skill maintains.
+"""Create the three empty OKF bundles this skill maintains.
 
 Usage:
     python3 scripts/init_wiki.py              # create in the current directory
@@ -9,9 +9,13 @@ Usage:
 Creates:
 
     job-wiki/      applications/  concepts/  references/postings/  index.md  log.md
-    study-wiki/    modules/       topics/    references/sources/    index.md  log.md
+                   references/submissions/
+    study-wiki/    references/sources/    index.md  log.md
+                   (one folder per module is added by add_module.py)
+    project-wiki/  index.md  log.md
+                   (one folder per project is added by add_project.py)
 
-    career-wiki.json   { "language": "<tag>" } - the language compiled pages
+    wiki-config.json   { "language": "<tag>" } - the language compiled pages
                        are written in; postings and sources keep their own
 
 It never touches content pages, only the scaffolding. Safe to rerun.
@@ -27,7 +31,7 @@ from datetime import date
 
 ROOT = os.getcwd()
 FORCE = "--force" in sys.argv
-CONFIG = "career-wiki.json"
+CONFIG = "wiki-config.json"
 
 
 def lang_arg():
@@ -47,9 +51,9 @@ DIRS = [
     "job-wiki/applications",
     "job-wiki/concepts",
     "job-wiki/references/postings",
-    "study-wiki/modules",
-    "study-wiki/topics",
+    "job-wiki/references/submissions",
     "study-wiki/references/sources",
+    "project-wiki",
 ]
 
 FILES = {
@@ -62,6 +66,7 @@ okf_version: "0.2"
 * [Applications](applications/) - one page per job application
 * [Concepts](concepts/) - tools and theory the postings ask for
 * [Postings](references/postings/) - the original text of each posting
+* [Submissions](references/submissions/) - the CVs and cover letters sent, one folder per application
 
 Each page in `concepts/` links, where one already covers it, to the
 matching topic in the [study wiki](../study-wiki/index.md).
@@ -75,21 +80,29 @@ okf_version: "0.2"
 
 # Study Wiki
 
-* [Modules](modules/) - the curriculum skeleton
-* [Topics](topics/) - one page per concept
 * [Sources](references/sources/) - raw external material
 
+Each module is a folder with its own `index.md` and one page per topic.
 Written only from the sources and instructions you provide. The
 [job wiki](../job-wiki/index.md) links here where a topic already covers
 a concept a posting requires; nothing flows the other way.
+
+## Modules
 """,
     "study-wiki/log.md": "# Change log\n",
-    "study-wiki/modules/index.md": "# Modules\n",
-    "study-wiki/topics/index.md": """# Topics
+    "project-wiki/index.md": """---
+okf_version: "0.2"
+---
 
-Coverage: `empty` (no sources) - `stub` (some material) - `drafted`
-(theory written) - `solid` (interview-ready).
+# Project Wiki
+
+Documentation of personal projects, one folder per project. Pages link to
+the [study wiki](../study-wiki/index.md) topics they rely on; nothing flows
+the other way.
+
+## Projects
 """,
+    "project-wiki/log.md": "# Change log\n",
     "study-wiki/references/sources/index.md": """# Sources
 
 Raw, immutable material. One file per source, whatever its original format
@@ -127,18 +140,19 @@ def main():
         write_config(config_path, config)
         created.append(CONFIG)
 
-    for log in ("job-wiki/log.md", "study-wiki/log.md"):
+    for log in ("job-wiki/log.md", "study-wiki/log.md", "project-wiki/log.md"):
         if log in created:
             with open(os.path.join(ROOT, log), "a", encoding="utf-8") as f:
                 f.write(f"\n## {date.today()}\n* **Init**: bundle created.\n")
 
-    print(f"Created {len(created)} files across 2 OKF bundles.")
+    print(f"Created {len(created)} files across 3 OKF bundles.")
     print(f"Wiki language: {config['language']}")
     if skipped:
         print(f"Skipped {len(skipped)} already present (use --force to overwrite):")
         for p in skipped:
             print(f"  {p}")
     print("\nNext: python3 scripts/add_module.py scripts/curricula/example-curriculum.json")
+    print("      python3 scripts/add_project.py \"My project\"")
 
 
 if __name__ == "__main__":

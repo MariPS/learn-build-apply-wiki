@@ -10,12 +10,19 @@ posted_at: <YYYY-MM-DD>
 cv_sent_at: <YYYY-MM-DD>
 application_status: candidate   # candidate | applied | interview | rejected | offer | withdrawn
 status: draft                   # draft | stable | deprecated (document lifecycle, not the application's)
-language: <wiki language>       # from career-wiki.json
+language: <wiki language>       # from wiki-config.json
 generated: { by: human:you, at: <timestamp> }
 sources:
   - id: posting
     resource: /references/postings/<file>.md
     title: <original posting title>
+documents_sent: []              # filled by Track; one entry per CV / cover letter sent:
+#  - kind: cv                    # cv | cover-letter
+#    sent_at: <YYYY-MM-DD>
+#    file: /references/submissions/<application-slug>/cv-<YYYY-MM-DD>.pdf   # or null
+#    original_name: <filename as you had it>
+#    language: <language of the document>
+#    note: <optional: channel, recipient, what was tailored>
 ---
 
 # Job description

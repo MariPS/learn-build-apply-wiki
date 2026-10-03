@@ -4,7 +4,7 @@ title: <Concept name>
 description: <one line>
 aliases: []                                      # names seen in postings/sources, any language
 tags: []
-study_topic: ../../study-wiki/topics/<slug>.md   # only if that topic already covers this; else null
+study_topic: ../../study-wiki/<module>/<slug>.md   # only if that topic already covers this; else null
 language: <wiki language>
 generated: { by: human:you, at: <timestamp> }
 ---

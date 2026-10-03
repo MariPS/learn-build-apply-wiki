@@ -1,7 +1,12 @@
 # Curricula
 
 One JSON file per module. Each defines a module and the topics inside it,
-and is turned into wiki pages by `scripts/add_module.py`.
+and is turned into a module folder (`study-wiki/<number>-<slug>/`, with its
+`index.md` and one page per topic) by `scripts/add_module.py`.
+
+How you cut modules is up to you. For an ML/AI wiki, the stages of the
+pipeline work well: data, modeling, deployment, operations, plus one module
+for LLM applications.
 
 The skeleton is **yours to choose**. Reasonable sources for an index:
 
@@ -18,7 +23,7 @@ first import, so what you imported stays distinguishable from what you
 grew yourself.
 
 Write topic names and descriptions in your wiki language (set in
-`career-wiki.json`; override per module with `"language"`). Filenames are
+`wiki-config.json`; override per module with `"language"`). Filenames are
 always ASCII: accents are stripped, and you can pin a language-neutral
 filename with `"slug"` — e.g. `{"name": "Code di messaggi", "slug":
 "message-queues", ...}` — so postings in any language link to it.

@@ -12,10 +12,16 @@ Read it in this order to see the cross-link at work:
    agent extracted from it.
 3. `job-wiki/concepts/message-queues.md` — a concept the posting requires,
    shared across applications, pointing at the study wiki.
-4. `study-wiki/topics/message-queues.md` — the study page, showing a
-   filled-in `# Theory in depth` with per-claim footnotes.
+4. `study-wiki/01-foundations/message-queues.md` — the study page, showing a
+   filled-in `# 3. Theory in depth` with per-claim footnotes.
 5. `study-wiki/references/sources/example-talk-queue-semantics.md` — the
    source the theory was compiled from.
+6. `job-wiki/references/submissions/example-corp-backend-engineer/` — the
+   CV (PDF) and cover letter (pasted as text) sent with the application,
+   listed under `documents_sent` in the application page.
+7. `project-wiki/job-queue-demo/` — a personal project whose architecture
+   and decision pages reference the same study topic. The link runs from
+   the project to the study page, never back.
 
 Note what the theory page does *not* contain: any mention of Example Corp,
 salary, seniority, or even a link back to the job wiki. The link runs one
@@ -24,5 +30,5 @@ way, from the concept to the topic — and the logs show it was only set on
 the subject. On 2026-01-15, when the posting arrived, the concept stayed at
 `study_topic: null` and the study wiki was left alone.
 
-`career-wiki.json` sets the wiki language (`en` here). Postings and
+`wiki-config.json` sets the wiki language (`en` here). Postings and
 sources carry their own `language`, and may differ from it.

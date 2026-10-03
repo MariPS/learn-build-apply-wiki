@@ -1,7 +1,11 @@
-# Your own wikis: uncomment if you keep them in a separate private repo.
-# Leave them tracked (the default) if this clone *is* your knowledge base.
-# job-wiki/
-# study-wiki/
+# Personal wikis: they hold CVs, applications and study notes.
+# Only the tool (skill, scripts, templates, examples) goes on GitHub.
+/job-wiki/
+/study-wiki/
+/project-wiki/
+/wiki-config.json
+/.obsidian/
+/Pasted image *.png
 
 __pycache__/
 *.pyc
@@ -10,3 +14,7 @@ __pycache__/
 venv/
 .idea/
 .vscode/
+
+# Your own module definitions: only the placeholder ships with the tool.
+/scripts/curricula/*.json
+!/scripts/curricula/example-curriculum.json

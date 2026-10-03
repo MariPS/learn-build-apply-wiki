@@ -4,7 +4,7 @@ title: Message Queues
 description: Asynchronous message transport between services, and the delivery guarantees involved.
 aliases: [message queues, message broker]
 tags: [backend, event-driven]
-study_topic: ../../study-wiki/topics/message-queues.md
+study_topic: ../../study-wiki/01-foundations/message-queues.md
 language: en
 generated: { by: human:you, at: 2026-01-18T18:32:00Z }
 ---
@@ -21,7 +21,7 @@ in a broker rather than calling a service directly.
 
 # Further study
 
-Theory and sources: [Message Queues](../../study-wiki/topics/message-queues.md)
+Theory and sources: [Message Queues](../../study-wiki/01-foundations/message-queues.md)
 
 # Linked applications
 

@@ -7,3 +7,4 @@ okf_version: "0.2"
 * [Applications](applications/) - one page per job application
 * [Concepts](concepts/) - tools and theory the postings ask for
 * [Postings](references/postings/) - the original text of each posting
+* [Submissions](references/submissions/) - the CVs and cover letters sent, one folder per application

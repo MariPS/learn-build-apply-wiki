@@ -17,6 +17,10 @@ gets followed less faithfully.
 **Keep it dependency-free.** Plain markdown, YAML front matter, and the
 Python standard library. No database, no build step, no package manager.
 
+**Your projects stay yours.** `project-wiki/` holds personal work and is
+listed in `.gitignore`; only the mechanism (`add_project.py`, the schemas)
+lives here.
+
 **Examples stay fictional.** `examples/` uses invented companies and
 placeholder sources on purpose. Don't add real postings or copyrighted
 material.
