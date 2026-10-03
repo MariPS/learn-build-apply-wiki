@@ -1,7 +1,7 @@
 ---
 type: Reference
 title: <descriptive title>
-description: <what this source contains>
+description: "<what this source contains>"
 resource: <URL, if any>
 source_kind: video          # video | book | paper | webpage | course | notes
 author: <author or channel>

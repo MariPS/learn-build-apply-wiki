@@ -95,7 +95,7 @@ def overview(name, slug, desc, lang):
     return f"""---
 type: Project
 title: "{name}"
-description: {desc}
+description: {json.dumps(desc, ensure_ascii=False)}
 project_status: idea        # idea | active | paused | done | archived
 started_at: {NOW[:10]}
 repo: null                  # URL of the code repository, if any
@@ -136,7 +136,7 @@ def doc_page(kind, title, desc, sections, name, slug, lang):
     return f"""---
 type: Project Doc
 title: "{title} - {name}"
-description: {desc}
+description: {json.dumps(desc, ensure_ascii=False)}
 project: {slug}
 doc_kind: {kind}
 study_topics: []            # relative links to the study topics this page relies on

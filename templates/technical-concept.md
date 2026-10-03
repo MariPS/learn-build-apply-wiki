@@ -1,7 +1,7 @@
 ---
 type: Technical Concept
 title: <Concept name>
-description: <one line>
+description: "<one line>"
 aliases: []                                      # names seen in postings/sources, any language
 tags: []
 study_topic: ../../study-wiki/<module>/<slug>.md   # only if that topic already covers this; else null

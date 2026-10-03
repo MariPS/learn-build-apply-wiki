@@ -1,7 +1,7 @@
 ---
 type: Project
 title: "Job queue demo"
-description: A small worker service that processes jobs from a message queue.
+description: "A small worker service that processes jobs from a message queue."
 project_status: active       # idea | active | paused | done | archived
 started_at: 2026-02-02
 repo: null                  # URL of the code repository, if any

@@ -90,7 +90,7 @@ def topic_page(name, desc, module_label, lang):
     return f"""---
 type: Study Topic
 title: "{name}"
-description: {desc}
+description: {json.dumps(desc, ensure_ascii=False)}
 tags: [{slugify(module_label.split(' - ', 1)[-1])}]
 module: "{module_label}"
 coverage: empty        # empty | stub | drafted | solid

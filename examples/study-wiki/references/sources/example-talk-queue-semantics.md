@@ -1,7 +1,7 @@
 ---
 type: Reference
 title: "Talk: delivery semantics in practice (transcript)"
-description: Placeholder transcript of a fictional conference talk, used to show the source format.
+description: "Placeholder transcript of a fictional conference talk, used to show the source format."
 resource: https://example.com/talks/delivery-semantics
 source_kind: video
 author: Example Speaker

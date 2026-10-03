@@ -1,7 +1,7 @@
 ---
 type: Project
 title: <Project name>
-description: <one line>
+description: "<one line>"
 project_status: idea        # idea | active | paused | done | archived
 started_at: <ISO 8601 date>
 repo: null                  # URL of the code repository, if any

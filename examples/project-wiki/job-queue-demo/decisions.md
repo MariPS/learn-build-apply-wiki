@@ -1,7 +1,7 @@
 ---
 type: Project Doc
 title: "Decisions - Job queue demo"
-description: Decision log: what was chosen, and why.
+description: "Decision log: what was chosen, and why."
 project: job-queue-demo
 doc_kind: decisions
 study_topics: [../../study-wiki/01-foundations/message-queues.md]

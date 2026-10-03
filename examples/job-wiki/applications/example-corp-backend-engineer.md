@@ -1,7 +1,7 @@
 ---
 type: Job Application
 title: "Backend Engineer @ Example Corp"
-description: Platform team role owning an event-driven order pipeline.
+description: "Platform team role owning an event-driven order pipeline."
 resource: https://example.com/careers/backend-engineer
 tags: [backend, event-driven]
 company: Example Corp

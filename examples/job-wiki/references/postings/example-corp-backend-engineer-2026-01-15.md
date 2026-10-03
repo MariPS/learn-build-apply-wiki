@@ -1,7 +1,7 @@
 ---
 type: Reference
 title: "Backend Engineer @ Example Corp — original posting"
-description: Full text of the posting, verbatim, not summarised.
+description: "Full text of the posting, verbatim, not summarised."
 resource: https://example.com/careers/backend-engineer
 language: en
 generated: { by: human:you, at: 2026-01-15T09:00:00Z }

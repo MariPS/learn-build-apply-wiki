@@ -1,7 +1,7 @@
 ---
 type: Project Doc
 title: "Architecture - Job queue demo"
-description: Components, data flow and technology choices.
+description: "Components, data flow and technology choices."
 project: job-queue-demo
 doc_kind: architecture
 study_topics: [../../study-wiki/01-foundations/message-queues.md]

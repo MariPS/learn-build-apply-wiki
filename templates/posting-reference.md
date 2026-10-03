@@ -1,7 +1,7 @@
 ---
 type: Reference
 title: "<Role> @ <Company> — original posting"
-description: Full text of the posting, verbatim, not summarised.
+description: "Full text of the posting, verbatim, not summarised."
 resource: <posting URL, if any>
 language: <language of the posting as published>
 generated: { by: human:you, at: <timestamp> }

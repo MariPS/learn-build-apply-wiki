@@ -1,7 +1,7 @@
 ---
 type: Reference
 title: "Cover letter — Backend Engineer @ Example Corp"
-description: Cover letter as sent, verbatim.
+description: "Cover letter as sent, verbatim."
 language: en
 generated: { by: human:you, at: 2026-01-18T18:30:00Z }
 ---

@@ -1,6 +1,6 @@
 ---
 name: learn-build-apply-wiki
-description: Maintains three linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes solely from material the user supplies, and one documenting the user's personal projects; job concepts and project docs link into the study wiki only where it already covers them. Postings and sources may be in any language; compiled pages are written in the wiki language the user configured. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), attaches or points to the CV or cover letter they sent to a company, pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki ("which postings need Kubernetes?", "what do I know about vector databases?", "where am I weakest?"), asks to prepare for an interview, asks to extend the study wiki with a new area, describes or documents a personal project (goal, architecture, data, experiments, decisions, deployment), asks a question about one, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Prep, Lint, Extend and Document Project operations defined below.
+description: "Maintains three linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes solely from material the user supplies, and one documenting the user's personal projects; job concepts and project docs link into the study wiki only where it already covers them. Postings and sources may be in any language; compiled pages are written in the wiki language the user configured. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), attaches or points to the CV or cover letter they sent to a company, pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki (\"which postings need Kubernetes?\", \"what do I know about vector databases?\", \"where am I weakest?\"), asks to prepare for an interview, asks to extend the study wiki with a new area, describes or documents a personal project (goal, architecture, data, experiments, decisions, deployment), asks a question about one, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Prep, Lint, Extend and Document Project operations defined below."
 ---
 
 # Learn Build Apply Wiki
@@ -161,7 +161,7 @@ All slugs are ASCII (see Languages).
 ```yaml
 type: Job Application
 title: "<Role> @ <Company>"
-description: <one line>
+description: "<one line>"
 resource: <posting URL, if any>
 tags: [...]
 company: <Company>
@@ -195,7 +195,7 @@ first `cv` entry. An application with no documents sent yet has
 ```yaml
 type: Technical Concept
 title: <Concept name, in the wiki language>
-description: <one line>
+description: "<one line>"
 aliases: [<names seen in postings/sources, any language>]
 tags: [...]
 study_topic: ../../study-wiki/<module>/<slug>.md   # or null: no topic covers it (yet)
@@ -212,7 +212,7 @@ with the right name is not coverage.
 ```yaml
 type: Study Topic
 title: <Topic name, as the curriculum calls it>
-description: <one line>
+description: "<one line>"
 tags: [...]
 module: "<NN> - <module name>"
 coverage: empty | stub | drafted | solid
@@ -257,7 +257,7 @@ into its own topic (needs the user's go-ahead — see Extend).
 ```yaml
 type: Reference
 title: <descriptive title>
-description: Full text of the posting, verbatim, not summarised.
+description: "Full text of the posting, verbatim, not summarised."
 resource: <URL, if any>
 language: <language of the posting as published>
 generated: { by: <actor>, at: <timestamp> }
@@ -271,7 +271,7 @@ saved as `.md`, verbatim, with:
 ```yaml
 type: Reference
 title: "Cover letter — <Role> @ <Company>"
-description: Cover letter as sent, verbatim.
+description: "Cover letter as sent, verbatim."
 language: <language of the letter>
 generated: { by: <actor>, at: <timestamp> }
 ```
@@ -281,7 +281,7 @@ generated: { by: <actor>, at: <timestamp> }
 ```yaml
 type: Reference
 title: <descriptive title>
-description: <what it contains>
+description: "<what it contains>"
 resource: <URL, if any>
 source_kind: video | book | paper | webpage | course | notes
 author: <author or channel>
@@ -298,7 +298,7 @@ generated: { by: <actor>, at: <timestamp> }
 ```yaml
 type: Project
 title: <Project name>
-description: <one line>
+description: "<one line>"
 project_status: idea | active | paused | done | archived
 started_at: <ISO 8601 date>
 repo: <URL of the code repository, or null>
@@ -315,7 +315,7 @@ Body: `# Goal`, `# Scope`, `# Status`, `# Outcome` (filled when done),
 ```yaml
 type: Project Doc
 title: <Page title - project name>
-description: <one line>
+description: "<one line>"
 project: <project-slug>
 doc_kind: requirements | architecture | data | experiments | decisions | deployment | notes
 study_topics: [../../study-wiki/<module>/<slug>.md, ...]   # may be empty
@@ -617,6 +617,8 @@ Fix automatically:
 - Links to a folder (`](folder/)`) instead of its `index.md`: Obsidian
   treats them as a missing note and creates an empty `folder.md` in the root
   when clicked → point them at `folder/index.md`, creating it if absent.
+- Front matter that doesn't parse as YAML (typically an unquoted
+  `description` containing `: `) → wrap the value in double quotes.
 - Broken internal links pointing at a file you know was renamed or moved.
 - Front matter missing `type` (add it when the content makes it obvious).
 - `coverage` out of step with the page's actual contents.
@@ -788,3 +790,7 @@ than what you'd actually study.
 - Respect the baseline OKF v0.2 constraints: every non-reserved `.md` has a
   `type`; `index.md` and `log.md` carry no front matter, except
   `okf_version` in each bundle's root `index.md`.
+- Front matter must be valid YAML (Obsidian shows "invalid properties"
+  otherwise). Always write `description` (and `title`) as a double-quoted
+  string: an unquoted value containing `: ` or `#` breaks the parse.
+  Escape inner double quotes as `\"`.

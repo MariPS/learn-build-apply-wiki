@@ -1,7 +1,7 @@
 ---
 type: Job Application
 title: "<Role> @ <Company>"
-description: <one line>
+description: "<one line>"
 resource: <posting URL, if any>
 tags: []
 company: <Company>

@@ -1,7 +1,7 @@
 ---
 type: Technical Concept
 title: Message Queues
-description: Asynchronous message transport between services, and the delivery guarantees involved.
+description: "Asynchronous message transport between services, and the delivery guarantees involved."
 aliases: [message queues, message broker]
 tags: [backend, event-driven]
 study_topic: ../../study-wiki/01-foundations/message-queues.md

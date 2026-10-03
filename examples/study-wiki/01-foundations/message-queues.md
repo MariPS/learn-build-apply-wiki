@@ -1,7 +1,7 @@
 ---
 type: Study Topic
 title: "Message Queues"
-description: Asynchronous message transport, delivery guarantees, and consumer design.
+description: "Asynchronous message transport, delivery guarantees, and consumer design."
 tags: [foundations]
 module: "01 - Foundations"
 coverage: drafted
