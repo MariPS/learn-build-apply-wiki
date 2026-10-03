@@ -63,10 +63,10 @@ okf_version: "0.2"
 
 # Job Wiki
 
-* [Applications](applications/) - one page per job application
-* [Concepts](concepts/) - tools and theory the postings ask for
-* [Postings](references/postings/) - the original text of each posting
-* [Submissions](references/submissions/) - the CVs and cover letters sent, one folder per application
+* [Applications](applications/index.md) - one page per job application
+* [Concepts](concepts/index.md) - tools and theory the postings ask for
+* [Postings](references/postings/index.md) - the original text of each posting
+* [Submissions](references/submissions/index.md) - the CVs and cover letters sent, one folder per application
 
 Each page in `concepts/` links, where one already covers it, to the
 matching topic in the [study wiki](../study-wiki/index.md).
@@ -80,7 +80,7 @@ okf_version: "0.2"
 
 # Study Wiki
 
-* [Sources](references/sources/) - raw external material
+* [Sources](references/sources/index.md) - raw external material
 
 Each module is a folder with its own `index.md` and one page per topic.
 Written only from the sources and instructions you provide. The
@@ -103,6 +103,8 @@ the other way.
 ## Projects
 """,
     "project-wiki/log.md": "# Change log\n",
+    "job-wiki/references/postings/index.md": "# Postings\n\n<!-- One row per posting. Kept in sync by the Lint operation. -->\n",
+    "job-wiki/references/submissions/index.md": "# Submissions\n\n<!-- One row per application folder. Kept in sync by the Lint operation. -->\n",
     "study-wiki/references/sources/index.md": """# Sources
 
 Raw, immutable material. One file per source, whatever its original format

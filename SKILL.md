@@ -614,6 +614,9 @@ Fix automatically:
 - `index.md` rows missing or out of sync with the files present, in all
   wikis (module indexes list their topics as a numbered list, in curriculum
   order).
+- Links to a folder (`](folder/)`) instead of its `index.md`: Obsidian
+  treats them as a missing note and creates an empty `folder.md` in the root
+  when clicked → point them at `folder/index.md`, creating it if absent.
 - Broken internal links pointing at a file you know was renamed or moved.
 - Front matter missing `type` (add it when the content makes it obvious).
 - `coverage` out of step with the page's actual contents.

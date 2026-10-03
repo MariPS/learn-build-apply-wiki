@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Study Wiki
 
-* [Sources](references/sources/) - raw external material
+* [Sources](references/sources/index.md) - raw external material
 
 Each module is a folder with its own `index.md` and one page per topic.
 
