@@ -11,3 +11,4 @@
 
 ## 2026-01-24
 * **Track**: first call scheduled, status `interview`.
+* **Recap**: created `recap.md` (as of 2026-01-24): 1 sent, 1 in progress.

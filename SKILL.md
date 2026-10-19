@@ -1,6 +1,6 @@
 ---
 name: learn-build-apply-wiki
-description: "Maintains three linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes solely from material the user supplies, and one documenting the user's personal projects; job concepts and project docs link into the study wiki only where it already covers them. Postings and sources may be in any language; compiled pages are written in the wiki language the user configured. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), attaches or points to the CV or cover letter they sent to a company, pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki (\"which postings need Kubernetes?\", \"what do I know about vector databases?\", \"where am I weakest?\"), asks to prepare for an interview, asks to extend the study wiki with a new area, describes or documents a personal project (goal, architecture, data, experiments, decisions, deployment), asks a question about one, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Prep, Lint, Extend and Document Project operations defined below."
+description: "Maintains three linked LLM wikis (Karpathy pattern) in Open Knowledge Format: one tracking job applications, one compiling study notes solely from material the user supplies, and one documenting the user's personal projects; job concepts and project docs link into the study wiki only where it already covers them. Postings and sources may be in any language; compiled pages are written in the wiki language the user configured. ALWAYS use this skill when the user pastes a job posting (URL, text, file), reports an application update (CV sent, interview scheduled, rejection, offer), attaches or points to the CV or cover letter they sent to a company, pastes study material (video transcript, book chapter, paper, web page, notes), asks a question about either wiki (\"which postings need Kubernetes?\", \"what do I know about vector databases?\", \"where am I weakest?\"), asks for a recap of the applications (\"where am I with my applications?\", \"summarise replies and interviews\"), asks to prepare for an interview, asks to extend the study wiki with a new area, describes or documents a personal project (goal, architecture, data, experiments, decisions, deployment), asks a question about one, or asks to check or clean up the wikis. Do not wait for step-by-step instructions: autonomously apply the Ingest Job, Track, Ingest Source, Query, Recap, Prep, Lint, Extend and Document Project operations defined below."
 ---
 
 # Learn Build Apply Wiki
@@ -34,6 +34,11 @@ v0.2 bundles, cross-linked.
   `study_topic` field pointing at the study-wiki page that already covers
   it (`../../study-wiki/<module>/<slug>.md`), or `null` when no topic covers
   it (yet).
+- **`recap.md`** — the state of all applications at a given date: what is
+  in progress, which replies came in, which interviews are scheduled or
+  awaiting an outcome, what is still waiting for a reply. A compiled page
+  (`type: Application Recap`), rewritten in full by Recap and kept current
+  by Ingest Job and Track. History lives in `log.md`, not here.
 
 ### `study-wiki/` — what you actually know
 
@@ -140,6 +145,7 @@ All slugs are ASCII (see Languages).
 
 - `job-wiki/applications/<company-slug>-<role-slug>.md`
 - `job-wiki/concepts/<concept-slug>.md`
+- `job-wiki/recap.md` — a single file, never dated copies
 - `project-wiki/<project-slug>/<doc_kind>.md` — `overview.md` plus one
   file per documentation page; the project folder name is its slug.
   Project slugs are ASCII, short and stable once created.
@@ -206,6 +212,34 @@ generated: { by: <actor>, at: <timestamp> }
 `study_topic` is set only when the target topic is at `coverage` `stub`
 or above **and** its theory actually treats the concept. An empty stub
 with the right name is not coverage.
+
+**Application Recap** (`job-wiki/recap.md`, one file):
+
+```yaml
+type: Application Recap
+title: "<Recap of the applications, in the wiki language>"
+description: "<one line: the counts, e.g. 12 sent, 2 in progress, 1 rejected>"
+as_of: <date the recap reflects, ISO 8601>
+language: <wiki language>
+generated: { by: <actor>, at: <timestamp> }
+```
+
+Recap body, in this order (headings in English, contents in the wiki
+language; empty sections stay, with `-`):
+
+| Section | Contents |
+|---|---|
+| `# Summary` | The counts: applications sent, in progress (screening or interviews), rejected or closed, no reply yet, not sent yet. One or two lines on the overall picture. |
+| `# In progress` | One `##` per application with a reply that isn't a rejection: contact so far (screening, interviews, with dates), the outcome awaited and when, the next step in their process. |
+| `# Rejected or closed` | One line each: date, how far it got. |
+| `# Waiting for a reply` | Sent, no reply yet, **oldest first**: date sent, days since, documents sent (CV, CV + cover letter). Mark those with no reply for more than three weeks. |
+| `# Not sent yet` | Applications at `candidate`. |
+| `# Next steps` | Dated actions and expected dates taken from the application notes (a call to schedule, an outcome expected around a date, a file to recover such as a `documents_sent` entry at `file: null`). Only what the notes say: no advice. |
+
+Every line links the application page with a relative link. The recap
+holds no information that isn't already on the application pages: it is
+compiled from their front matter and `# Personal notes`, never from the
+conversation alone.
 
 **Study Topic** (in `study-wiki/<NN>-<module-slug>/`):
 
@@ -451,7 +485,8 @@ routing identified as a posting.
    posting, record it as in Track (step 3).
 7. Append a line to the job wiki's `log.md`.
 8. Refresh the affected rows in `applications/index.md` and
-   `concepts/index.md`.
+   `concepts/index.md`, and the application's line in `recap.md` (if
+   `recap.md` exists; create it with Recap otherwise).
 9. Summarise in a few lines what you created or updated, and which
    concepts got linked to an existing study topic.
 
@@ -490,7 +525,10 @@ or hands you the CV or cover letter they sent.
    set `status: deprecated` on the document — still readable, no longer
    active.
 5. Append a line to `log.md`, naming the documents recorded.
-6. Refresh the application's row in `applications/index.md`.
+6. Refresh the application's row in `applications/index.md` and its
+   place in `recap.md` (move it between sections, update counts, `as_of`
+   and `# Next steps`). If `recap.md` doesn't exist yet, create it with
+   Recap.
 
 ### 3. Ingest Source — new study material
 
@@ -573,9 +611,36 @@ about their content ("what did I say about Kafka in the letter to X?").
 
 Always cite wiki pages with relative links, and when a claim comes from a
 specific external source, cite that too. Never write to disk for a query
-unless the user asks to archive the answer.
+unless the user asks to archive the answer. A question about the overall
+state of the applications ("where am I?", "which replies have I had?")
+is not a Query: it's Recap, which saves its answer.
 
-### 5. Prep — interview preparation
+### 5. Recap — state of the applications
+
+Trigger: the user asks for a recap or summary of their applications ("where
+am I with my applications?", "recap of what I've sent, the replies and the
+interviews in progress", "who hasn't answered yet?").
+
+1. Read `applications/index.md`, then the front matter and
+   `# Personal notes` of every application page.
+2. Rewrite `job-wiki/recap.md` in full following the Application Recap
+   schema, with `as_of` set to today. Compute "days since" from today's
+   date. Before rewriting, check the application pages are consistent
+   with each other (an interview noted but `application_status` still
+   `applied`, a `cv_sent_at` out of step with `documents_sent`): fix what
+   Lint would fix, report the rest.
+3. Link `recap.md` from the job wiki's root `index.md` if it isn't there.
+4. Append a line to `log.md` (`**Recap**`, with the counts).
+5. Answer in chat with the same picture, shorter: the counts, what's in
+   progress and the next steps, then a link to `recap.md` for the rest.
+
+Recap only reads application pages and writes `recap.md`, `index.md` and
+`log.md`: it never changes an application's status on its own. If the
+user corrects something while reading the recap ("Example Corp never got the
+letter"), that's a Track on the application, followed by a refresh of
+the recap.
+
+### 6. Prep — interview preparation
 
 Trigger: "I have an interview with X tomorrow", "quiz me on Y", "where am
 I weakest?".
@@ -602,7 +667,7 @@ I weakest?".
    the interview will be held in when that differs (usually the posting's
    `language`).
 
-### 6. Lint — wiki health check
+### 7. Lint — wiki health check
 
 Trigger: the user asks to check or clean up the wikis; also run it
 yourself whenever you notice inconsistencies during another operation.
@@ -639,6 +704,9 @@ Fix automatically:
 - **Leaks into the study wiki** (extended): study pages that link into the
   project wiki, or contain a user's project decisions or results → remove
   them (they belong in `project-wiki/`).
+- `recap.md` out of step with the application pages (an application
+  missing or in the wrong section, counts off, `as_of` older than the
+  last Track or Ingest Job in `log.md`) → regenerate it with Recap.
 - `cv_sent_at` out of step with the first `cv` entry in `documents_sent`;
   applications with no `documents_sent` field → add `documents_sent: []`.
 
@@ -670,7 +738,7 @@ Report without fixing (ask first):
 - Applications at `applied` or beyond with no `cv` entry in
   `documents_sent`: the CV sent isn't on record.
 
-### 7. Document Project — a personal project
+### 8. Document Project — a personal project
 
 Trigger: the user describes or updates one of their projects (a goal, a
 design, a dataset, an experiment and its result, a decision, a deployment
@@ -713,7 +781,7 @@ Do not invent results, metrics or decisions: write only what the user
 told you or what is in files they gave you. Mark anything inferred as
 such, or ask.
 
-### 8. Extend — a new study module
+### 9. Extend — a new study module
 
 Trigger: **only** an explicit request from the user to cover ground
 outside the imported curriculum ("add system design", "I need distributed
@@ -771,7 +839,7 @@ than what you'd actually study.
 - **Study wiki boundary**: only Ingest Source, Extend and explicit user
   requests add content to `study-wiki/`; Lint may only repair it (indexes,
   links, `coverage`, removing job and project leaks). Ingest Job, Track,
-  Prep, Query and Document Project never write there. Cross-links are written on the job side only.
+  Prep, Query, Recap and Document Project never write there. Cross-links are written on the job side only.
 - Compiled pages in the wiki language; raw references in their original
   language (see Languages).
 - `references/` is write-once. Never rewrite a reference after creating it.

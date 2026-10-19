@@ -49,6 +49,7 @@ Compiled pages, not retrieval over raw chunks.
 | **Track** | "sent my CV to X" (with the PDF), "they rejected me" | status and dates updated, dated note added; the CV / cover letter sent copied into the wiki and recorded on the application |
 | **Ingest Source** | you paste a transcript, chapter, paper, page, or your own notes | source saved raw, triaged to the topics it covers, theory written with per-claim footnotes; job concepts now covered get linked |
 | **Query** | "what do I know about X?" | answer compiled from the wiki, with citations |
+| **Recap** | "where am I with my applications?" | `job-wiki/recap.md` rewritten: in progress, replies, interviews, still waiting (oldest first), next steps; kept current by every Track |
 | **Prep** | "interview tomorrow with X" | briefing from the linked topics, plus the gaps — in chat, never written into the study wiki |
 | **Lint** | "check the wikis" | index drift, broken and missed job→study links fixed, job content leaked into study pages removed; duplicates and orphans reported |
 | **Document Project** | "in my project I chose X because…", "document this experiment" | project folder created if new; the content filed in the right page (architecture, experiments, decisions…), with links to the study topics it relies on; nothing written to the study wiki |
